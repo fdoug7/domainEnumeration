@@ -7,7 +7,7 @@ import dns.resolver as dr   # pip install dnsresolver
 import nmap as nm           # pip install nmap-python
 
 
-domains = ['send.gofax.com.au', 'sms.gofax.com.au', 'test.send.notifyre.com', 'test.send.us.notifyre.com', 'google.com']
+domains = []
 serverNames = []
 
 nmScan = nm.PortScanner()
