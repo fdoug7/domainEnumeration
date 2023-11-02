@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env python
 
 # Improvements:
 # List should be a dictionary that matches the MX record to their IP
@@ -58,8 +58,19 @@ def serverScan():
         except KeyError:
             print("KeyError Exception found. Not sure of the cause")
 
+
+if len(sys.argv) > 1:
+    #expect file path
+    domain_list_file=sys.argv[1]
+    if not os.path.exists(domain_list_file):
+        print(f"The path {domain_list_file} doesn't contain a file")
+        sys.exit(1)
+    
+    with open(domain_list_file,'r') as f:
+        for line in f.readlines():
+            domains.append(line)
+else:
+    print(f"Missing positional argument domain_list_file.\nPlease specify path to a file containing new line delimitated domain names")
+    sys.exit(1)            
 getMXDN()
 serverScan()
-
-
-
