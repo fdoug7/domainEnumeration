@@ -3,7 +3,7 @@
 # Improvements:
 # List should be a dictionary that matches the MX record to their IP
 
-import sys,os
+import sys,os,json
 import dns.resolver as dr
 import nmap as nm  
 
@@ -11,7 +11,7 @@ domains = []
 serverNames = []
 
 nmScan = nm.PortScanner()
-ports = '25'
+port = 25
 
 def getMXDN(): 
     for domain in domains:
@@ -47,16 +47,12 @@ def getIP():
 def serverScan():
     for ip in getIP():
         print('='*30)
-        nmScan.scan(ip, ports)
+        nmScan.scan(ip, str(port))
         
         print("IP: " + ip)
-        try:
-            print("IP Status: ", nmScan[ip].state())
-            print("Port open: ", nmScan[ip]['tcp'].keys())
-            print('\b')
-
-        except KeyError:
-            print("KeyError Exception found. Not sure of the cause")
+        print("IP Status: ", nmScan[ip].state())
+        print("Port state: ", nmScan[ip]['tcp'][port]['state'] if nmScan[ip].get('tcp')  else "")
+        print('\b')
 
 
 if len(sys.argv) > 1:
@@ -68,7 +64,7 @@ if len(sys.argv) > 1:
     
     with open(domain_list_file,'r') as f:
         for line in f.readlines():
-            domains.append(line)
+            domains.append(line.strip())
 else:
     print(f"Missing positional argument domain_list_file.\nPlease specify path to a file containing new line delimitated domain names")
     sys.exit(1)            
