@@ -3,9 +3,9 @@
 # Improvements:
 # List should be a dictionary that matches the MX record to their IP
 
-import dns.resolver as dr   # pip install dnsresolver
-import nmap as nm           # pip install nmap-python
-
+import sys,os
+import dns.resolver as dr
+import nmap as nm  
 
 domains = []
 serverNames = []
