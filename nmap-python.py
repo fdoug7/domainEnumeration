@@ -1,17 +1,17 @@
-#!/usr/bin/env
+#!/usr/bin/env python
 
 # Improvements:
 # List should be a dictionary that matches the MX record to their IP
 
-import dns.resolver as dr   # pip install dnsresolver
-import nmap as nm           # pip install nmap-python
-
+import sys,os,json
+import dns.resolver as dr
+import nmap as nm  
 
 domains = []
 serverNames = []
 
 nmScan = nm.PortScanner()
-ports = '25'
+port = 25
 
 def getMXDN(): 
     for domain in domains:
@@ -47,19 +47,26 @@ def getIP():
 def serverScan():
     for ip in getIP():
         print('='*30)
-        nmScan.scan(ip, ports)
+        nmScan.scan(ip, str(port))
         
         print("IP: " + ip)
-        try:
-            print("IP Status: ", nmScan[ip].state())
-            print("Port open: ", nmScan[ip]['tcp'].keys())
-            print('\b')
+        print("IP Status: ", nmScan[ip].state())
+        print("Port state: ", nmScan[ip]['tcp'][port]['state'] if nmScan[ip].get('tcp')  else "")
+        print('\b')
 
-        except KeyError:
-            print("KeyError Exception found. Not sure of the cause")
 
+if len(sys.argv) > 1:
+    #expect file path
+    domain_list_file=sys.argv[1]
+    if not os.path.exists(domain_list_file):
+        print(f"The path {domain_list_file} doesn't contain a file")
+        sys.exit(1)
+    
+    with open(domain_list_file,'r') as f:
+        for line in f.readlines():
+            domains.append(line.strip())
+else:
+    print(f"Missing positional argument domain_list_file.\nPlease specify path to a file containing new line delimitated domain names")
+    sys.exit(1)            
 getMXDN()
 serverScan()
-
-
-
