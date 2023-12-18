@@ -1,3 +1,3 @@
-dnslib==0.9.23
+pipdnslib==0.9.23
 dnspython==2.4.2
 python-nmap==0.7.1
