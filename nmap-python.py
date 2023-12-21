@@ -22,8 +22,8 @@ if __name__ == '__main__':
 
     )
 
-    parser.add_argument('-s', '--spfrecords', help='returns SPF records under the given domain')
-    parser.add_argument('-m', '--mxrecords', help='Returns the MX records under the given domain')
+    parser.add_argument('-s', '--spfrecords', action='store_true', help='returns SPF records under the given domain')
+    parser.add_argument('-m', '--mxrecords', action='store_true', help='Returns the MX records under the given domain')
     parser.add_argument('-d', '--domain', help='Target domain')
     parser.add_argument('-f', '--file', help='File')
     args = parser.parse_args()
@@ -35,7 +35,8 @@ if __name__ == '__main__':
 
 class domainEnumer:
 
-    def getMXDN():
+
+    def getMX():
         if args.file:
             domain_list_file=args.file
             if not os.path.exists(domain_list_file):
@@ -48,12 +49,10 @@ class domainEnumer:
         elif args.domain:
             domains.append(args.domain)
             
-        
         else:
             print('Missing potential arguments.')
             sys.exit(1)
-
-
+        
         if domains:
             for domain in domains:
                 print('\b')
@@ -76,6 +75,24 @@ class domainEnumer:
         else:
             print('No domains provided')
 
+    def getTXT():
+        if args.file:
+            domain_list_file=args.file
+            if not os.path.exists(domain_list_file):
+                print(f"The path {domain_list_file} doesn't contain a file")
+                
+            with open(domain_list_file, 'r') as f:
+                for line in f.readlines():
+                    domains.append(line.strip())
+
+        elif args.domain:
+            domains.append(args.domain)
+            
+        else:
+            print('Missing potential arguments.')
+            sys.exit(1)
+        for domain in domains:
+            print(dr.resolve(domain, 'TXT').rrset)
 
     def getIP():
         serverIP = []
@@ -98,7 +115,13 @@ class domainEnumer:
             print('\b')
 
 
-domainEnumer.getMXDN()
-domainEnumer.serverScan()
+if args.spfrecords:
+    domainEnumer.getTXT()
+elif args.mxrecords:
+    domainEnumer.getMX()
+else:
+    print('Missing arguments')
+
+
 # getMXDN()
 # serverScan()
