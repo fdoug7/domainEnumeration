@@ -121,9 +121,16 @@ class domainEnumer:
                             
                         print("IP: " + ip)
                         print("IP Status: ", nmScan[ip].state())
-                        domains['domains'][i]['mxnames'][x]['ip'][ip].update({"IP Status": nmScan[ip].state()})
+                        domains['domains'][i]['mxnames'][x]['ip'][ip].update({"Host Status": nmScan[ip].state()})
                         print("Port state: ", nmScan[ip]['tcp'][port]['state'] if nmScan[ip].get('tcp')  else "")
                         domains['domains'][i]['mxnames'][x]['ip'][ip].update({"Port State": nmScan[ip]['tcp'][port]['state']})
+
+                        domains['domains'][i]['mxnames'][x]['ip'][ip].update({"Service Name": nmScan[ip]['tcp'][port]['name']})
+
+                        lport = list(nmScan[ip]['tcp'].keys())
+                        for ports in lport:
+                            print('Port: %s\tService: %s' % (port, nmScan[ip]['tcp'][ports]['name']))
+
 
                         print('\b')
                     except KeyError as err: 
@@ -140,3 +147,6 @@ elif args.mxrecords:
     domainEnumer.serverScan()
 else:
     print('Missing arguments')
+
+with open('result.json', 'w') as fp:
+    json.dump(domains, fp)
