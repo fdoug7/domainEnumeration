@@ -25,6 +25,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-s', '--spfrecords', action='store_true', help='returns SPF records under the given domain')
     parser.add_argument('-m', '--mxrecords', action='store_true', help='Returns the MX records under the given domain')
+    parser.add_argument('-o', '--output', action='store_true', help='Outputs the results to a json file')
     parser.add_argument('-d', '--domain', help='Target domain')
     parser.add_argument('-f', '--file', help='File')
     args = parser.parse_args()
@@ -35,28 +36,25 @@ if __name__ == '__main__':
 
 class domainEnumer:
     ##Template domain = [["domain": {}, "mxname": {"ip": }]]
-
-
-    def getMX():
-        if args.file:
-            domain_list_file=args.file
-            if not os.path.exists(domain_list_file):
-                print(f"The path {domain_list_file} doesn't contain a file")
+    if args.file:
+        domain_list_file=args.file
+        if not os.path.exists(domain_list_file):
+            print(f"The path {domain_list_file} doesn't contain a file")
                 
-            with open(domain_list_file, 'r') as f:
-                for line in f.readlines():
-                    domains['domains'].update({line.strip(): {}})
-                    domains['domains'][line.strip()].update({"mxnames": {}})
+        with open(domain_list_file, 'r') as f:
+            for line in f.readlines():
+                domains['domains'].update({line.strip(): {}})
+                domains['domains'][line.strip()].update({"mxnames": {}})
                     
-        elif args.domain:
-            domains['domains'].update({args.domain: {}})
-            domains['domains'][args.domain].update({"mxnames": {}})
+    elif args.domain:
+        domains['domains'].update({args.domain: {}})
+        domains['domains'][args.domain].update({"mxnames": {}})
             
-        else:
-            print('Missing potential arguments.')
-            sys.exit(1)
-                
+    else:
+        print('Missing potential arguments.')
+        sys.exit(1)
 
+    def getMX():          
         if True:
             for domain in domains['domains']:
                 print('\b')
@@ -78,24 +76,18 @@ class domainEnumer:
                     print('DNS query name does not exist')
 
 
-    def getTXT():
-        if args.file:
-            domain_list_file=args.file
-            if not os.path.exists(domain_list_file):
-                print(f"The path {domain_list_file} doesn't contain a file")
-                
-            with open(domain_list_file, 'r') as f:
-                for line in f.readlines():
-                    domains.append(line.strip())
+    def getTXT():        
+        try: 
+            for domain in domains['domains']:
+                print(dr.resolve(domain, 'TXT').rrset)
+                y = dr.resolve(domain, 'TXT').rrset
+                domains['domains'][domain].update({"TXT Records": []})
+                domains['domains'][domain]["TXT Records"].append(str(y))
 
-        elif args.domain:
-            domains.append(args.domain)
-            
-        else:
-            print('Missing potential arguments.')
-            sys.exit(1)
-        for domain in domains:
-            print(dr.resolve(domain, 'TXT').rrset)
+        except (dr.NoAnswer) as err:
+            print(f"{domain}: Unexpected {err=}, {type(err)=}")
+        finally: 
+            print(domains)
 
 
     def getIP():
@@ -147,6 +139,6 @@ elif args.mxrecords:
     domainEnumer.serverScan()
 else:
     print('Missing arguments')
-
-with open('result.json', 'w') as fp:
-    json.dump(domains, fp)
+if args.output:
+    with open('result.json', 'w') as fp:
+        json.dump(domains, fp)
